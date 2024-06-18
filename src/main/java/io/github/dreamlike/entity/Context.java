@@ -1,4 +1,4 @@
-package io.github.dreamlike;
+package io.github.dreamlike.entity;
 
 import java.util.HashMap;
 import java.util.Map;

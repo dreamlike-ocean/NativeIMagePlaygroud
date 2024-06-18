@@ -1,11 +1,11 @@
-package io.github.dreamlike
+package io.github.dreamlike.suit
 
 import java.lang.foreign.FunctionDescriptor
 import java.lang.foreign.Linker
 import java.lang.foreign.ValueLayout
 import java.lang.invoke.MethodHandle
 
-class NativeCase {
+class FFICase {
     companion object {
 
         val pageSizeMH = initPageSizeMH()

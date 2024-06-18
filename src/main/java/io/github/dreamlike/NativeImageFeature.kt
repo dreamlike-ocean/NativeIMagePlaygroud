@@ -1,53 +1,52 @@
-package io.github.dreamlike;
+package io.github.dreamlike
 
-import io.netty.channel.socket.nio.NioDatagramChannel;
-import kotlin.Pair;
-import kotlin.reflect.jvm.internal.ReflectionFactoryImpl;
-import org.graalvm.nativeimage.hosted.Feature;
-import org.graalvm.nativeimage.hosted.RuntimeClassInitialization;
-import org.graalvm.nativeimage.hosted.RuntimeForeignAccess;
-import org.graalvm.nativeimage.hosted.RuntimeReflection;
+import io.github.dreamlike.entity.Person
+import io.netty.channel.socket.nio.NioDatagramChannel
+import org.graalvm.nativeimage.hosted.Feature
+import org.graalvm.nativeimage.hosted.Feature.BeforeAnalysisAccess
+import org.graalvm.nativeimage.hosted.Feature.DuringSetupAccess
+import org.graalvm.nativeimage.hosted.RuntimeClassInitialization
+import org.graalvm.nativeimage.hosted.RuntimeForeignAccess
+import org.graalvm.nativeimage.hosted.RuntimeReflection
+import java.lang.foreign.FunctionDescriptor
+import java.lang.foreign.Linker
+import java.lang.foreign.ValueLayout
+import java.net.Inet4Address
+import java.net.Inet6Address
+import kotlin.reflect.jvm.internal.ReflectionFactoryImpl
 
-import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.Linker;
-import java.lang.foreign.ValueLayout;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-public class NativeImageFeature implements Feature {
-    public void duringSetup(Feature.DuringSetupAccess access) {
+class NativeImageFeature :Feature {
+    override fun duringSetup(access: DuringSetupAccess?) {
         RuntimeForeignAccess
-                .registerForDowncall(
-                        FunctionDescriptor.of(ValueLayout.JAVA_INT),
-                        Linker.Option.critical(false)
-                );
+            .registerForDowncall(
+                FunctionDescriptor.of(ValueLayout.JAVA_INT),
+                Linker.Option.critical(false)
+            )
     }
 
-    @Override
-    public void beforeAnalysis(BeforeAnalysisAccess access) {
-        Class<Person> personClass = Person.class;
-        registerSingleClass(personClass);
-        registerSingleClass(ReflectionFactoryImpl.class);
-        registerSingleClass(NioDatagramChannel.class);
-        registerSingleClass(Pair.class);
+    override fun beforeAnalysis(access: BeforeAnalysisAccess?) {
+        val personClass = Person::class.java
+        registerSingleClass(personClass)
+        registerSingleClass(ReflectionFactoryImpl::class.java)
+        registerSingleClass(NioDatagramChannel::class.java)
+        registerSingleClass(Pair::class.java)
+        RuntimeClassInitialization.initializeAtRunTime(Inet6Address::class.java)
+        RuntimeClassInitialization.initializeAtRunTime("io.netty.handler.ssl")
     }
 
-    private void registerSingleClass(Class c) {
-        RuntimeReflection.register(c);
-        RuntimeReflection.registerAllDeclaredConstructors(c);
-        for (Constructor constructor : c.getDeclaredConstructors()) {
-            RuntimeReflection.register(constructor);
-
+    private fun registerSingleClass(c: Class<*>) {
+        RuntimeReflection.register(c)
+        RuntimeReflection.registerAllDeclaredConstructors(c)
+        for (constructor in c.declaredConstructors) {
+            RuntimeReflection.register(constructor)
         }
-        for (Field field : c.getDeclaredFields()) {
-            RuntimeReflection.register(field);
-            RuntimeReflection.registerFieldLookup(c, field.getName());
+        for (field in c.declaredFields) {
+            RuntimeReflection.register(field)
+            RuntimeReflection.registerFieldLookup(c, field.name)
         }
-        for (Method method : c.getMethods()) {
-            RuntimeReflection.registerMethodLookup(c, method.getName(), method.getParameterTypes());
-            RuntimeReflection.register(method);
+        for (method in c.methods) {
+            RuntimeReflection.registerMethodLookup(c, method.name, *method.parameterTypes)
+            RuntimeReflection.register(method)
         }
     }
 }
-

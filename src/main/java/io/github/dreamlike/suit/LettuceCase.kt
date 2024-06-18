@@ -1,7 +1,6 @@
-package io.github.dreamlike
+package io.github.dreamlike.suit
 
 import io.lettuce.core.RedisClient
-import io.lettuce.core.RedisURI
 import io.lettuce.core.resource.DefaultClientResources
 import io.lettuce.core.resource.EventLoopGroupProvider
 import io.netty.channel.EventLoopGroup
@@ -23,7 +22,7 @@ fun Vertx.createRedisClient() :RedisClient {
 
     val resources = DefaultClientResources
         .builder()
-        .eventLoopGroupProvider(io.github.dreamlike.EventLoopGroupProvider(currentEventLoop))
+        .eventLoopGroupProvider(EventLoopGroupProvider(currentEventLoop))
         .build()
 
    return RedisClient.create(resources)
