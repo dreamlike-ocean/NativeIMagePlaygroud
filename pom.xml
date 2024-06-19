@@ -1,46 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.example</groupId>
-    <artifactId>NativeImagePlaygroud</artifactId>
+    <groupId>io.github.dreamlike</groupId>
+    <artifactId>quarkus-native</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <parent>
-        <groupId>io.micronaut.platform</groupId>
-        <artifactId>micronaut-parent</artifactId>
-        <version>4.5.0</version>
-    </parent>
-    <properties>
-        <packaging>jar</packaging>
-        <maven.compiler.source>22</maven.compiler.source>
-        <maven.compiler.target>22</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.9.10</kotlin.version>
-        <jmh.version>1.37</jmh.version>
-        <main.class>io.github.dreamlike.MainKt</main.class>
 
+    <properties>
+        <java.version>22</java.version>
+        <compiler-plugin.version>3.12.1</compiler-plugin.version>
+        <kotlin.version>2.0.0</kotlin.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
         <quarkus.platform.version>3.11.2</quarkus.platform.version>
+        <skipITs>true</skipITs>
+        <surefire-plugin.version>3.2.5</surefire-plugin.version>
 
-        <native.base.args>--enable-native-access=ALL-UNNAMED,--no-fallback,--enable-preview,--features=io.github.dreamlike.NativeImageFeature,-H:+ForeignAPISupport</native.base.args>
+        <native.base.args>--features=io.github.dreamlike.NativeImageFeature,-H:+ForeignAPISupport,--enable-native-access=ALL-UNNAMED,--initialize-at-run-time=io.github.dreamlike.ffi.PanamaCase</native.base.args>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-<!--            <dependency>-->
-<!--                <groupId>io.vertx</groupId>-->
-<!--                <artifactId>vertx-stack-depchain</artifactId>-->
-<!--                <version>4.5.8</version>-->
-<!--                <type>pom</type>-->
-<!--                <scope>import</scope>-->
-<!--            </dependency>-->
-
             <dependency>
-                <groupId>io.quarkus.platform</groupId>
-                <artifactId>quarkus-bom</artifactId>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>${quarkus.platform.artifact-id}</artifactId>
                 <version>${quarkus.platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -48,167 +35,115 @@
         </dependencies>
     </dependencyManagement>
 
-
-    <profiles>
-        <profile>
-            <id>native-debug</id>
-            <properties>
-                <skipITs>false</skipITs>
-                <quarkus.native.enabled>true</quarkus.native.enabled>
-                <quarkus.native.additional-build-args>${native.base.args},-Ob</quarkus.native.additional-build-args>
-                <quarkus.native.report-exception-stack-traces>true</quarkus.native.report-exception-stack-traces>
-            </properties>
-            <build>
-                <plugins>
-<!--                    <plugin>-->
-<!--                        <groupId>org.graalvm.buildtools</groupId>-->
-<!--                        <artifactId>native-maven-plugin</artifactId>-->
-<!--                        <version>0.10.2</version>-->
-<!--                        <extensions>true</extensions>-->
-<!--                        <executions>-->
-<!--                            <execution>-->
-<!--                                <id>build-native</id>-->
-<!--                                <goals>-->
-<!--                                    <goal>compile-no-fork</goal>-->
-<!--                                </goals>-->
-<!--                                <phase>package</phase>-->
-<!--                            </execution>-->
-<!--                        </executions>-->
-<!--                        <configuration>-->
-<!--                            <buildArgs>-->
-<!--                                <buildArg>&#45;&#45;enable-native-access=ALL-UNNAMED</buildArg>-->
-<!--                                <buildArg>&#45;&#45;no-fallback</buildArg>-->
-<!--                                <buildArg>&#45;&#45;enable-preview</buildArg>-->
-<!--                                <buildArg>-Ob</buildArg>-->
-<!--                                <buildArg>&#45;&#45;features=io.github.dreamlike.NativeImageFeature</buildArg>-->
-<!--                                <buildArg>-H:+ForeignAPISupport</buildArg>-->
-<!--                              </buildArgs>-->
-<!--                            <skipNativeTests>true</skipNativeTests>-->
-<!--                            <mainClass>${main.class}</mainClass>-->
-
-<!--                            <metadataRepository>-->
-<!--                                <enabled>true</enabled>-->
-<!--                            </metadataRepository>-->
-<!--                        </configuration>-->
-<!--                    </plugin>-->
-
-                </plugins>
-            </build>
-        </profile>
-
-        <profile>
-            <id>native-release</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.graalvm.buildtools</groupId>
-                        <artifactId>native-maven-plugin</artifactId>
-                        <version>0.9.28</version>
-                        <extensions>true</extensions>
-                        <executions>
-                            <execution>
-                                <id>build-native</id>
-                                <goals>
-                                    <goal>compile-no-fork</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <buildArgs>
-                                <buildArg>--enable-native-access=ALL-UNNAMED</buildArg>
-                                <buildArg>--no-fallback</buildArg>
-                                <buildArg>--enable-preview</buildArg>
-                                <buildArg>-Ob</buildArg>
-                                <buildArg>--features=io.github.dreamlike.NativeImageFeature</buildArg>
-                                <buildArg>--gc=G1</buildArg>
-                                <buildArg>-march=native</buildArg>
-                                <buildArg>-H:+ForeignAPISupport</buildArg>
-                            </buildArgs>
-                            <skipNativeTests>true</skipNativeTests>
-                            <mainClass>${main.class}</mainClass>
-                        </configuration>
-                    </plugin>
-
-
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
     <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.latencyutils/LatencyUtils -->
-        <dependency>
-            <groupId>org.latencyutils</groupId>
-            <artifactId>LatencyUtils</artifactId>
-            <version>2.0.3</version>
-        </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-vertx</artifactId>
+            <artifactId>quarkus-mutiny</artifactId>
         </dependency>
-
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-rest</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-vertx</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-kotlin</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-redis-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-reactive-routes</artifactId>
+        </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-arc</artifactId>
         </dependency>
-
-
         <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>1.8.0</version>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-junit5</artifactId>
+            <scope>test</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/io.lettuce/lettuce-core -->
         <dependency>
-            <groupId>io.lettuce</groupId>
-            <artifactId>lettuce-core</artifactId>
-            <version>6.3.2.RELEASE</version>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
         </dependency>
-
-
         <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-reactive</artifactId>
-            <version>1.8.0</version>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>kotlin-extensions</artifactId>
+            <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-kotlin</artifactId>
-        </dependency>
-
-
-<!--        <dependency>-->
-<!--            <groupId>io.vertx</groupId>-->
-<!--            <artifactId>vertx-lang-kotlin</artifactId>-->
-<!--        </dependency>-->
-
-
-<!--        <dependency>-->
-<!--            <groupId>io.vertx</groupId>-->
-<!--            <artifactId>vertx-lang-kotlin-coroutines</artifactId>-->
-<!--        </dependency>-->
-
-
     </dependencies>
+
     <build>
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
+            <plugin>
+                <groupId>${quarkus.platform.group-id}</groupId>
+                <artifactId>quarkus-maven-plugin</artifactId>
+                <version>${quarkus.platform.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build</goal>
+                            <goal>generate-code</goal>
+                            <goal>generate-code-tests</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${compiler-plugin.version}</version>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-parameters</arg>
+                        <arg>--enable-preview</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${surefire-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <systemPropertyVariables>
+                        <native.image.path>${project.build.directory}/${project.build.finalName}-runner
+                        </native.image.path>
+                        <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <artifactId>kotlin-maven-plugin</artifactId>
@@ -236,7 +171,7 @@
                 </dependencies>
                 <configuration>
                     <javaParameters>true</javaParameters>
-                    <jvmTarget>17</jvmTarget>
+                    <jvmTarget>20</jvmTarget>
                     <compilerPlugins>
                         <plugin>all-open</plugin>
                     </compilerPlugins>
@@ -248,29 +183,26 @@
                     </pluginOptions>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>${quarkus.platform.group-id}</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus.platform.version}</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>build</goal>
-                            <goal>generate-code</goal>
-                            <goal>generate-code-tests</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                    <argLine>--enable-preview</argLine>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>native-debug</id>
+            <properties>
+                <skipITs>false</skipITs>
+                <quarkus.native.enabled>true</quarkus.native.enabled>
+                <quarkus.native.additional-build-args>-Ob,${native.base.args}</quarkus.native.additional-build-args>
+            </properties>
+        </profile>
+
+        <profile>
+            <id>native-release</id>
+            <properties>
+                <skipITs>false</skipITs>
+                <quarkus.native.enabled>true</quarkus.native.enabled>
+                <quarkus.native.additional-build-args>-O3,${native.base.args},-march=native</quarkus.native.additional-build-args>
+            </properties>
+        </profile>
+    </profiles>
 </project>

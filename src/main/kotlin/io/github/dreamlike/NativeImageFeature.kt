@@ -11,7 +11,6 @@ import org.graalvm.nativeimage.hosted.RuntimeReflection
 import java.lang.foreign.FunctionDescriptor
 import java.lang.foreign.Linker
 import java.lang.foreign.ValueLayout
-import java.net.Inet4Address
 import java.net.Inet6Address
 import kotlin.reflect.jvm.internal.ReflectionFactoryImpl
 
@@ -25,13 +24,6 @@ class NativeImageFeature :Feature {
     }
 
     override fun beforeAnalysis(access: BeforeAnalysisAccess?) {
-        val personClass = Person::class.java
-        registerSingleClass(personClass)
-        registerSingleClass(ReflectionFactoryImpl::class.java)
-        registerSingleClass(NioDatagramChannel::class.java)
-        registerSingleClass(Pair::class.java)
-        RuntimeClassInitialization.initializeAtRunTime(Inet6Address::class.java)
-        RuntimeClassInitialization.initializeAtRunTime("io.netty.handler.ssl")
     }
 
     private fun registerSingleClass(c: Class<*>) {
